@@ -18,14 +18,20 @@ namespace expense_tracker_api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllTransactions()
+        public async Task<IActionResult> GetAllTransactions([FromQuery] DateTime? fromDate, [FromQuery] DateTime? toDate)
         {
 
             //filtration
-            
+            var query = _db.Transactions.AsQueryable();
+
+            if (fromDate.HasValue)
+                query = _db.Transactions.Where(t => t.Date >= fromDate);
+
+            if (toDate.HasValue)
+                query = _db.Transactions.Where(t => t.Date <= toDate);
             //end
 
-            var transactions = await _db.Transactions
+            var transactions = await query
                 .Select(t => new TransactionDTO
                 {
                     Id = t.Id,
